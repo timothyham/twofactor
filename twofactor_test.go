@@ -10,6 +10,7 @@ func TestHash(t *testing.T) {
 	r1 := GoogleAuthCode("AAAAA", 12345)
 	r2 := GoogleAuthCode("AAAAAA", 12345)
 	r3 := GoogleAuthCode("ID2SDHZNEOTFV5V5", 12345)
+	r4 := GoogleAuthCode("AAAAA", 12640)
 
 	if r1 != "435833" {
 		t.Error("r1")
@@ -20,6 +21,10 @@ func TestHash(t *testing.T) {
 	if r3 != "375402" {
 		t.Error("r3")
 	}
+	if r4 != "016105" {
+		t.Error("r4")
+	}
+
 }
 
 func TestReadConfigFile(t *testing.T) {

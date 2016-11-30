@@ -108,7 +108,7 @@ func GoogleAuthCode(secret string, now int64) string {
 	padding := len(outputCode)
 	if len(outputCode) < 6 {
 		for i := 0; i < 6-padding; i++ {
-			outputCode += "0"
+			outputCode = "0" + outputCode
 		}
 	}
 
