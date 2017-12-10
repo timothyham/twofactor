@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/hmac"
+	"crypto/rand"
 	"crypto/sha1"
 	"encoding/base32"
 	"encoding/binary"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -19,7 +21,23 @@ const FILENAME = ".twofactor"
 
 var Debug = false
 
+var debug = flag.Bool("d", false, "Debug")
+var generate = flag.Bool("gen", false, "Generate code")
+
 func main() {
+	flag.Parse()
+
+	Debug = *debug
+	if *generate {
+		key, err := Generate()
+		if err != nil {
+			fmt.Printf("Error :%v\n", err)
+		} else {
+			fmt.Printf("%s\n", key)
+		}
+		return
+	}
+
 	home := os.Getenv("HOME")
 	configFile := home + "/" + FILENAME
 
@@ -115,4 +133,15 @@ func GoogleAuthCode(secret string, now int64) string {
 	//outputCode = outputCode[0:3] + " " + outputCode[3:6]
 
 	return outputCode
+}
+
+func Generate() (string, error) {
+	bits := make([]byte, 10)
+	_, err := rand.Read(bits)
+	if err != nil {
+		return "", err
+	}
+
+	res := base32.StdEncoding.EncodeToString(bits)
+	return res, nil
 }
