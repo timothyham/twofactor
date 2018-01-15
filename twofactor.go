@@ -23,19 +23,26 @@ var Debug = false
 
 var debug = flag.Bool("d", false, "Debug")
 var generate = flag.Bool("gen", false, "Generate code")
+var genshort = flag.Bool("genshort", false, "Generate short code")
+var help = flag.Bool("h", false, "show this help")
 
 func main() {
 	flag.Parse()
 
+	if *help {
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
+
 	Debug = *debug
-	if *generate {
-		key, err := Generate()
+	if *generate || *genshort {
+		key, err := Generate(*genshort)
 		if err != nil {
 			fmt.Printf("Error :%v\n", err)
 		} else {
 			fmt.Printf("%s\n", key)
 		}
-		return
+		os.Exit(0)
 	}
 
 	home := os.Getenv("HOME")
@@ -135,8 +142,13 @@ func GoogleAuthCode(secret string, now int64) string {
 	return outputCode
 }
 
-func Generate() (string, error) {
-	bits := make([]byte, 10)
+func Generate(short bool) (string, error) {
+	var bits []byte
+	if short {
+		bits = make([]byte, 10)
+	} else {
+		bits = make([]byte, 20)
+	}
 	_, err := rand.Read(bits)
 	if err != nil {
 		return "", err
