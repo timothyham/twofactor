@@ -62,8 +62,12 @@ func main() {
 		now := time.Now().Unix()
 		code := GoogleAuthCode(keys[i], now)
 		remaining := 30 - now%30
-		fmt.Printf("%s : %v : %vs\n", code, label, remaining)
+		fmt.Printf("%s : %s : %v : %vs\n", spaceCode(code), code, label, remaining)
 	}
+}
+
+func spaceCode(code string) string {
+	return code[:3] + " " + code[3:]
 }
 
 func ReadConfigFile(r io.Reader) ([]string, []string) {
