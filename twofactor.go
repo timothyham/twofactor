@@ -99,6 +99,8 @@ func HmacSha1(key, msg []byte) []byte {
 }
 
 func GoogleAuthCode(secret string, now int64) string {
+	secret = strings.ToUpper(secret)
+	secret = strings.Replace(secret, " ", "", -1)
 	keyBytes, _ := base32.StdEncoding.DecodeString(secret)
 
 	timeCounter := now / 30

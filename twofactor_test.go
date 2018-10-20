@@ -6,25 +6,28 @@ import (
 	"testing"
 )
 
+type test struct {
+	secret string
+	time int64
+	code string
+}
+
 func TestHash(t *testing.T) {
-	r1 := GoogleAuthCode("AAAAA", 12345)
-	r2 := GoogleAuthCode("AAAAAA", 12345)
-	r3 := GoogleAuthCode("ID2SDHZNEOTFV5V5", 12345)
-	r4 := GoogleAuthCode("AAAAA", 12640)
+	testCases := make([]test, 0)
 
-	if r1 != "435833" {
-		t.Error("r1")
-	}
-	if r2 != "435833" {
-		t.Error("r2")
-	}
-	if r3 != "375402" {
-		t.Error("r3")
-	}
-	if r4 != "016105" {
-		t.Error("r4")
-	}
+	testCases = append(testCases, test{"AAAAA", 12345, "435833"})
+	testCases = append(testCases, test{"AAAAAA", 12345, "435833"})
+	testCases = append(testCases, test{"ID2SDHZNEOTFV5V5", 12345, "375402"})
+	testCases = append(testCases, test{"AAAAA", 12640, "016105"})
+	testCases = append(testCases, test{"id2sdhzneotfv5v5", 12345, "375402"})
+	testCases = append(testCases, test{"id2s dhzn eotf v5v5", 12345, "375402"})
 
+	for _, test := range testCases {
+		res := GoogleAuthCode(test.secret, test.time)
+		if res != test.code {
+			t.Errorf("Expected %s but got %s for secret '%s':%d", test.code, res, test.secret, test.time)
+		}
+	}
 }
 
 func TestReadConfigFile(t *testing.T) {
