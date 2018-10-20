@@ -8,8 +8,8 @@ import (
 
 type test struct {
 	secret string
-	time int64
-	code string
+	time   int64
+	code   string
 }
 
 func TestHash(t *testing.T) {
