@@ -8,3 +8,9 @@ The secrets file is in following format:
 
     Label1:SECRET_KEY
     Label2:ANOTHER_SECRET_KEY
+
+Run `go install` to build and install.
+
+Clock skew: If your clock is off, it may not generate the correct codes. Use 
+`twofactor 2+` to generate codes one minute in the future (the clock is slow), or 
+`twofactor 2-` to generate codes one minute in the past (the clock is fast).

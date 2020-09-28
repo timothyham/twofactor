@@ -30,6 +30,9 @@ func main() {
 	flag.Parse()
 
 	if *help {
+		fmt.Printf("twofactor - print TOTP codes\n\n")
+		fmt.Printf("twofactor [flags] [delta]\n")
+		fmt.Printf("[delta] is used when the clock is not accurate. \n2- for one minute in the past, 2+ for in the future.\n")
 		flag.PrintDefaults()
 		os.Exit(0)
 	}
@@ -45,6 +48,34 @@ func main() {
 		os.Exit(0)
 	}
 
+	deltaFlag := flag.Arg(0)
+
+	delta := 0
+	negative := false
+	hasSuffix := false
+	if strings.HasSuffix(deltaFlag, "-") {
+		negative = true
+		hasSuffix = true
+	} else if strings.HasSuffix(deltaFlag, "+") {
+		hasSuffix = true
+	}
+
+	endIdx := len(deltaFlag)
+	if hasSuffix {
+		endIdx = endIdx - 1
+	}
+	delta, err := strconv.Atoi(deltaFlag[:endIdx])
+	if err != nil {
+		delta = 0
+	}
+	if negative {
+		delta = delta * -1
+	}
+
+	if Debug {
+		fmt.Printf("delta: %s\n", deltaFlag)
+		fmt.Printf("deltaVal: %v\n", delta)
+	}
 	home := os.Getenv("HOME")
 	configFile := home + "/" + FILENAME
 
@@ -59,9 +90,13 @@ func main() {
 	labels, keys := ReadConfigFile(f)
 
 	for i, label := range labels {
-		now := time.Now().Unix()
-		code := GoogleAuthCode(keys[i], now)
-		remaining := 30 - now%30
+		now := time.Now()
+		if delta != 0 {
+			now = now.Add(time.Duration(delta) * 30 * time.Second)
+		}
+		nowUnix := now.Unix()
+		code := GoogleAuthCode(keys[i], nowUnix)
+		remaining := 30 - nowUnix%30
 		fmt.Printf("%s : %s : %v : %vs\n", spaceCode(code), code, label, remaining)
 	}
 }
