@@ -89,12 +89,13 @@ func main() {
 
 	labels, keys := ReadConfigFile(f)
 
+	now := time.Now()
+	if delta != 0 {
+		now = now.Add(time.Duration(delta) * 30 * time.Second)
+	}
+	nowUnix := now.Unix()
+
 	for i, label := range labels {
-		now := time.Now()
-		if delta != 0 {
-			now = now.Add(time.Duration(delta) * 30 * time.Second)
-		}
-		nowUnix := now.Unix()
 		code := GoogleAuthCode(keys[i], nowUnix)
 		remaining := 30 - nowUnix%30
 		fmt.Printf("%s : %s : %v : %vs\n", spaceCode(code), code, label, remaining)
