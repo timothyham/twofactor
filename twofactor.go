@@ -25,6 +25,7 @@ var debug = flag.Bool("d", false, "Debug")
 var generate = flag.Bool("gen", false, "Generate code")
 var genshort = flag.Bool("genshort", false, "Generate short code")
 var help = flag.Bool("h", false, "show this help")
+var noNTP = flag.Bool("nontp", false, "don't use NTP server")
 
 func main() {
 	flag.Parse()
@@ -89,10 +90,37 @@ func main() {
 
 	labels, keys := ReadConfigFile(f)
 
-	now := time.Now()
-	if delta != 0 {
-		now = now.Add(time.Duration(delta) * 30 * time.Second)
+	validNTP := false
+	var now *time.Time
+	if *noNTP {
+		tNow := time.Now()
+		now = &tNow
+	} else {
+		tStart := time.Now()
+		now, err = GetNtpTime()
+		if err == nil {
+			validNTP = true
+		} else {
+			fmt.Printf("No NTP: %v\n", err)
+			tNow := time.Now()
+			now = &tNow
+		}
+		if Debug {
+			fmt.Printf("NTP time took %.2f: %s\n", time.Now().Sub(tStart).Seconds(), now.Format(time.RFC3339))
+		}
 	}
+
+	if delta != 0 {
+		offsetTime := now.Add(time.Duration(delta) * 30 * time.Second)
+		now = &offsetTime
+	}
+	timeStr := now.Format(time.RFC3339)
+	if validNTP {
+		timeStr += " (NTP)"
+	} else {
+		timeStr += " (computer)"
+	}
+	fmt.Printf("Time: %s\n", timeStr)
 	nowUnix := now.Unix()
 
 	for i, label := range labels {
