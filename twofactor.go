@@ -114,13 +114,16 @@ func main() {
 		offsetTime := now.Add(time.Duration(delta) * 30 * time.Second)
 		now = &offsetTime
 	}
-	timeStr := now.Format(time.RFC3339)
+
+	timeStr := ""
 	if validNTP {
-		timeStr += " (NTP)"
+		timeStr += "(NTP) "
 	} else {
-		timeStr += " (computer)"
+		timeStr += "(computer clock) "
 	}
-	fmt.Printf("Time: %s\n", timeStr)
+	timeStr += now.Format(time.RFC3339)
+
+	fmt.Printf("%s\n", timeStr)
 	nowUnix := now.Unix()
 
 	for i, label := range labels {
